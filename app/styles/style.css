@@ -21,9 +21,16 @@ table, th, td {
 }
 
 table {
+  table-layout:fixed;
   border-spacing: 5px;
+  padding-right: 10px; 
 }
 
 th, td {
-  padding: 15px;
+  padding: 7px;
+}
+
+th {
+  white-space:nowrap;
+  padding: 2px;
 }

@@ -35,9 +35,17 @@ function updateAgentTickets() {
         
                                 console.log('Tickets received from the backend are'); 
                                 console.log(response.response.savedTickets); 
+
+                                var agentTicketsTable = document.getElementById('agentTicketsTable');
+
+                                if (response.response.savedTickets == null || response.response.savedTickets.length === 0) {
+                                    agentTicketsTable.style.display = "none";
+                                    return;
+                                } 
+
+                                agentTicketsTable.style.display = "table";
         
                                 // Clear existing rows but header 
-                                var agentTicketsTable = document.getElementById('agentTicketsTable');
         
                                 var rowCount = agentTicketsTable.rows.length;
                                 for (var x = rowCount-1; x > 0; x--) {
