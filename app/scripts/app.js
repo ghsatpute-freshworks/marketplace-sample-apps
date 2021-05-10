@@ -20,47 +20,55 @@ function onAppActivate() {
 }
 
 function updateAgentTickets() {
-    getLoggedInUser().then(
-        function(loggedInUser) {
-            let data = {
-                'agentId': loggedInUser.id
-            };
-
-            client.request.invoke('getAgentTickets', data)
-                .then(
-                    function(response) {
-                        console.log(document.location.href);
-
-                        console.log('Tickets received from the backend are'); 
-                        console.log(response.response.savedTickets); 
-
-                        // Clear existing rows but header 
-                        var agentTicketsTable = document.getElementById('agentTicketsTable');
-
-                        var rowCount = agentTicketsTable.rows.length;
-                        for (var x = rowCount-1; x > 0; x--) {
-                            agentTicketsTable.deleteRow(x);
-                        }
-
-                        response.response.savedTickets.forEach(ticket => {
-                            insertRow(ticket.ticketId, ticket.ticketSubject); 
-                        });
-                    }, 
-                    function(error) {
-                        alert(error); 
-                    }
-                ) 
+    client.iparams.get('freshdesk_domain_prefix').then(
+        function(freshdeskDomainPrefix) {
+            getLoggedInUser().then(
+                function(loggedInUser) {
+                    let data = {
+                        'agentId': loggedInUser.id
+                    };
+        
+                    client.request.invoke('getAgentTickets', data)
+                        .then(
+                            function(response) {
+                                console.log(document.location.href);
+        
+                                console.log('Tickets received from the backend are'); 
+                                console.log(response.response.savedTickets); 
+        
+                                // Clear existing rows but header 
+                                var agentTicketsTable = document.getElementById('agentTicketsTable');
+        
+                                var rowCount = agentTicketsTable.rows.length;
+                                for (var x = rowCount-1; x > 0; x--) {
+                                    agentTicketsTable.deleteRow(x);
+                                }
+        
+                                response.response.savedTickets.forEach(ticket => {
+                                    insertRow(freshdeskDomainPrefix['freshdesk_domain_prefix'], ticket.ticketId, ticket.ticketSubject); 
+                                });
+                            }, 
+                            function(error) {
+                                alert(error); 
+                            }
+                        ) 
+                });
+        },
+        function(error) {
+            console.error(error);
+            document.innerHTML = "Please set the FreshDesk Domain Prefix";
         });
 }
 
-function insertRow(ticketId, ticketSubject) {
+function insertRow(freshdeskDomainPrefix, ticketId, ticketSubject) {
     var table = document.getElementById('agentTicketsTable').insertRow(1);
 
     var c1 = table.insertCell(0);
     var c2 = table.insertCell(1);
     var c3 = table.insertCell(2);
     
-    c1.innerHTML = ticketId;
+    c1.innerHTML = '<a target="blank" href="https://' + freshdeskDomainPrefix + '.freshdesk.com/a/tickets/'
+        + ticketId + '?dev=true">' + ticketId + '</a>';
     // '<a href=' + window.location.hostname + 'a/tickets/' + ticketId + '>' + ticketId + '</a>';
     c2.innerHTML = ticketSubject;
     c3.innerHTML = '<input id="' + ticketId +  '" type="image" src="styles/images/removeRed.svg" style="height:20px; width:20px" onClick="removeTicket(this);"/>';
